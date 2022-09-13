@@ -1,5 +1,4 @@
 import requests
-import re
 import json
 import datetime
 import load_cookies
