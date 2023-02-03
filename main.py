@@ -1,4 +1,3 @@
-import os
 from openpyxl import Workbook
 from download import SheetDownloader
 from sheet_generator import SheetGenerator
@@ -25,7 +24,8 @@ def main():
     for tab in downloader.tabs:
         print("Fetching sheet %s..." % tab["name"])
         content, _, max_col = downloader.fetch_sheet_data(tab["id"])
-        _ = SheetGenerator(wb.create_sheet(tab["name"]), content, max_col)
+        sheet = SheetGenerator(wb.create_sheet(tab["name"]), content, max_col)
+        sheet.generate_sheet()
 
     print("Generating...")
 

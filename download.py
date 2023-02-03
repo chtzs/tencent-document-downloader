@@ -4,7 +4,7 @@ import datetime
 import load_cookies
 
 OPENDOC_API = "https://docs.qq.com/dop-api/opendoc"
-
+OPENDOC_GET_SHEET_API = "https://docs.qq.com/dop-api/get/sheet"
 
 class UserData:
     def __init__(self):
@@ -77,6 +77,25 @@ class SheetDownloader:
         opendoc_json = self._fetch_doc_json(params={
             "tab": tab_id
         })
+        
         max_row = opendoc_json["clientVars"]["collab_client_vars"]["maxRow"]
         max_col = opendoc_json["clientVars"]["collab_client_vars"]["maxCol"]
-        return opendoc_json["clientVars"]["collab_client_vars"]["initialAttributedText"]["text"][0], max_row, max_col
+        padId = opendoc_json["clientVars"]["collab_client_vars"]["globalPadId"]
+        rev = opendoc_json["clientVars"]["collab_client_vars"]["rev"]
+        sheet_params = {
+            "tab": tab_id,
+            "padId": padId,
+            "subId": tab_id,
+            "outformat": "1",
+            "startrow": "0",
+            "endrow": max_row,
+            "normal": "1",
+            "preview_token": "",
+            "nowb": "1",
+            "rev": rev
+        }
+        sheet_json = requests.get(
+            OPENDOC_GET_SHEET_API, headers=self.header, params=sheet_params).text
+        sheet_json = json.loads(sheet_json)
+        
+        return sheet_json["data"]["initialAttributedText"]["text"][0], max_row, max_col

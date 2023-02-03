@@ -105,7 +105,6 @@ class SheetGenerator:
         self.size_infos: List[SizeInfo] = []
         self.image_infos = []
         self.parse_data()
-        self.generate_sheet()
 
     def parse_data(self) -> List[Cell]:
         for attribute in self.sheet_content:
@@ -174,6 +173,33 @@ class SheetGenerator:
             else:
                 raise Exception(
                     "Unexpected type of SizeInfo: " + size_info.type)
+        return self.worksheet
+
+    def get_sheet_dict(self):
+        # 1. 获取单元格信息
+        sheet = {}
+        for cell in self.cells:
+            row_no = cell.index // self.max_col
+            col_no = cell.index % self.max_col
+            # 创建一个数组来代表"行"
+            if not (row_no in sheet):
+                row = [None for i in range(0, self.max_col)]
+                sheet[row_no] = row
+            else:
+                row = sheet[row_no]
+            # 填充信息
+            row[col_no] = cell.text
+
+        # 2. 将合并的单元格拆分
+        for merge_info in self.merge_infos:
+            text = sheet[merge_info.start_row][merge_info.start_col]
+            # if text == '' or text == None:
+            #     print("Error!")
+            #     exit(0)
+            for row in range(merge_info.start_row, merge_info.end_row + 1):
+                for col in range(merge_info.start_col, merge_info.end_col + 1):
+                    sheet[row][col] = text
+        return sheet
 
 
 if __name__ == '__main__':
